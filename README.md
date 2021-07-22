@@ -71,3 +71,10 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## Mock Repository
+repository mocking
+https://stackoverflow.com/questions/55366037/inject-typeorm-repository-into-nestjs-service-for-mock-data-testing
+
+sqlite inmemory test
+https://gist.github.com/Ciantic/be6a8b8ca27ee15e2223f642b5e01549

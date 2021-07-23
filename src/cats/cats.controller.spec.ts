@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CatsController } from './cats.controller';
 import { CatsService } from './cats.service';
+import {getRepositoryToken, TypeOrmModule} from "@nestjs/typeorm";
+import {Cat} from "./entities/cat.entity";
 
 describe('CatsController', () => {
   let catsController: CatsController;
@@ -9,7 +11,15 @@ describe('CatsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CatsController],
-      providers: [CatsService],
+      providers: [
+        CatsService,
+        {
+          provide: getRepositoryToken(Cat),
+          useValue: {
+            save: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     catsController = module.get<CatsController>(CatsController);
@@ -18,16 +28,13 @@ describe('CatsController', () => {
 
   it('should be defined', () => {
     expect(catsController).toBeDefined();
-    expect(catsController).toBe(undefined);
   });
 
   // given
   it('create()는 id를 받아서 저장합니다.', () => {
     const spy = jest.spyOn(catsController, 'create');
-
     // when
-    catsController.create({ name: 'hmSon' });
-
+    catsController.create({ name: 'amily' });
     // then
     expect(spy).toHaveBeenCalled();
   });

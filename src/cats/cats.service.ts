@@ -18,8 +18,14 @@ export class CatsService {
     });
   }
 
-  findAll(): Promise<Cat[]> {
-    return this.catRepository.find();
+  findAll(skip = 0, take = 1): Promise<[Cat[], number]> {
+    // return this.catRepository.find()
+    const result = this.catRepository
+      .createQueryBuilder('cat')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+    return result;
   }
 
   findOne(id: number): Promise<Cat> {

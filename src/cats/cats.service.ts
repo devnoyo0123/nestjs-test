@@ -20,6 +20,7 @@ export class CatsService {
 
   findAll(skip = 0, take = 1): Promise<[Cat[], number]> {
     // return this.catRepository.find()
+
     const result = this.catRepository
       .createQueryBuilder('cat')
       .skip(skip)

@@ -78,3 +78,10 @@ https://stackoverflow.com/questions/55366037/inject-typeorm-repository-into-nest
 
 sqlite inmemory test
 https://gist.github.com/Ciantic/be6a8b8ca27ee15e2223f642b5e01549
+
+## 도메인 분석 설계
+
+## 리포지 토리 개발 
+https://github.com/typeorm/typeorm/blob/master/docs/custom-repository.md
+
+https://medium.com/the-crowdlinker-chronicle/best-way-to-inject-repositories-using-typeorm-nestjs-e134c3dbf53c

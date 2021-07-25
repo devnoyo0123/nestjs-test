@@ -12,10 +12,15 @@ export class CatsController {
   create(@Body() createCatDto: CreateCatDto) {
     return this.catsService.create(createCatDto);
   }
+  //
+  // @Get()
+  // findAll(): Promise<[Cat[], number]> {
+  //   return this.catsService.findAll(0, 1);
+  // }
 
   @Get()
-  findAll(): Promise<[Cat[], number]> {
-    return this.catsService.findAll(0, 1);
+  find(): Promise<Cat[]> {
+    return this.catsService.find();
   }
 
   @Get(':id')

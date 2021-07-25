@@ -9,14 +9,28 @@ import { DeliveryModule } from './delivery/delivery.module';
 import { OrderitemModule } from './orderitem/orderitem.module';
 import { ItemModule } from './item/item.module';
 import { CategoryModule } from './category/category.module';
+import { AddressModule } from './address/address.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'database.db',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+    // TypeOrmModule.forRoot({
+    //   type: 'sqlite',
+    //   database: 'database.db',
+    //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    //   synchronize: true,
+    //   logging: true,
+    // }),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        username: 'service',
+        password: 'local',
+        database: 'mydb',
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+      }),
     }),
     CatsModule,
     MemberModule,
@@ -25,6 +39,7 @@ import { CategoryModule } from './category/category.module';
     OrderitemModule,
     ItemModule,
     CategoryModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],

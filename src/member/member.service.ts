@@ -1,26 +1,48 @@
 import { Injectable } from '@nestjs/common';
+import { Member } from './entities/member.entity';
+import { IMember } from './entities/IMember';
+import { MemberRepository } from './repository/repository.service';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMemberDto } from './dto/create-member.dto';
-import { UpdateMemberDto } from './dto/update-member.dto';
 
 @Injectable()
 export class MemberService {
-  create(createMemberDto: CreateMemberDto) {
-    return 'This action adds a new member';
+  constructor(
+    @InjectRepository(MemberRepository)
+    private readonly memberRepository: MemberRepository,
+  ) {}
+  async join(createMemberDto: CreateMemberDto) {
+    // 중복회원 검증
+    await this.validateDuplicateMember(createMemberDto);
+    const member: Member = Object.assign(new Member(), createMemberDto);
+    const result = await this.memberRepository.join(member);
+    return result.id;
   }
 
-  findAll() {
-    return `This action returns all member`;
+  async findAll() {
+    await this.memberRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} member`;
+  async findOne(id: number) {
+    return await this.memberRepository.findById(id);
   }
 
-  update(id: number, updateMemberDto: UpdateMemberDto) {
-    return `This action updates a #${id} member`;
+  // https://github.com/typeorm/typeorm/blob/master/docs/repository-api.md
+  async update(id: number, updateMemberDto: IMember) {
+    return await this.memberRepository.update(id, updateMemberDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} member`;
+  async remove(id: number) {
+    return await this.memberRepository.update(id, { useYn: false });
+  }
+
+  private async validateDuplicateMember(member: CreateMemberDto) {
+    const findMembers: Member[] = await this.memberRepository.findByName(
+      member.name,
+    );
+
+    if (findMembers.length > 0) {
+      throw new Error('이미 존재하는 회원입니다.');
+    }
   }
 }

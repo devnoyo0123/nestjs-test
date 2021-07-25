@@ -29,6 +29,10 @@ export class CatsService {
     return result;
   }
 
+  find() {
+    return this.catRepository.find();
+  }
+
   findOne(id: number): Promise<Cat> {
     return this.catRepository.findOne(id);
   }

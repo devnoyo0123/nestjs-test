@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderRepository } from './repository/repository';
 import { MemberRepository } from '../member/repository/repository.service';
@@ -54,6 +52,7 @@ export class OrderService {
 
     // 주문상품 생성
     const orderItem = OrderItem.createOrderItem(item, item.price, count);
+    const removeItem = await this.itemRepository.save(orderItem.item);
     const createdOrderItem = await this.orderItemRepository.save(orderItem);
 
     // 주문 생성

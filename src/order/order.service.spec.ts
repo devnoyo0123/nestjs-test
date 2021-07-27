@@ -7,9 +7,10 @@ import { OrderRepository } from './repository/repository';
 import { MemberRepository } from '../member/repository/repository.service';
 import { ItemRepository } from '../item/repository/item-repository.service';
 import { Book } from '../item/entities/book.entity';
-import { ORDERStatus } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { Order, ORDERStatus } from './entities/order.entity';
+import { getConnection, Repository } from 'typeorm';
 import { OrderItem } from '../orderitem/entities/orderitem.entity';
+import { Item } from '../item/entities/item.entity';
 
 describe('OrderService', () => {
   let orderService: OrderService;
@@ -32,6 +33,7 @@ describe('OrderService', () => {
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
           synchronize: true,
           dropSchema: true,
+          logging: true,
         }),
         TypeOrmModule.forFeature([
           OrderRepository,
@@ -73,19 +75,52 @@ describe('OrderService', () => {
     book.name = '시골 JPA';
     book.price = 10000;
     book.stockQuantity = 10;
-    const createItem = await itemRepo.save(book);
+    const createItem: Item = await itemRepo.save(book);
 
     const orderCount = 2;
     // when
-    const orderId = await orderService.order(
+    const orderId: number = await orderService.order(
       createdMember.id,
       createItem.id,
       orderCount,
     );
 
-    // then
-    const order = await orderRepo.findOne(orderId);
+    const order = await getConnection()
+      .createQueryBuilder<Order>(Order, 'order')
+      .innerJoinAndSelect('order.orderItems', 'orderItems')
+      .innerJoinAndSelect('orderItems.item', 'item')
+      .getOne();
 
+    // assert 문에 message가 있었으면 좋겠는데..
     expect(order.status).toEqual(ORDERStatus.ORDER);
+    expect(order.orderItems.length).toEqual(1);
+    expect(orderCount * 10000).toEqual(order.getTotalPrice());
+    expect(order.orderItems[0].item.stockQuantity).toEqual(8);
+  });
+
+  it('상품주문_재고수량초과', async () => {
+    // given
+    const member: Member = new Member();
+    member.name = '회원1';
+    member.address = new Address();
+    member.address.city = '서울';
+    member.address.street = '관악구';
+    member.address.zipcode = '123-123';
+    const createdMember = await memberRepo.save(member);
+    const book: Book = new Book();
+    book.name = '시골 JPA';
+    book.price = 10000;
+    book.stockQuantity = 10;
+    const createItem: Item = await itemRepo.save(book);
+
+    const orderCount = 11;
+
+    // when then 이 같이 있는 경우 아닌가?
+
+    // async await throwError
+    // 사실 이렇게 테스트하기보다는 removeStock 단위 테스트를 하는게 좋음.
+    await expect(
+      orderService.order(createdMember.id, createItem.id, orderCount),
+    ).rejects.toThrowError('need more stock');
   });
 });

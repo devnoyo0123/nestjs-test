@@ -33,6 +33,8 @@ export class OrderService {
    * cascade를 써야하는가?
    * order가 배송, 주문 상품을 관리하는 상황에서 주문상품이나 배송이 다른쪽에 영향이 미치면
    * cascade 쓰지말고 각각 persist해라.
+   * https://github.com/typeorm/typeorm/blob/master/docs/many-to-one-one-to-many-relations.md
+   * one to many, many to one
    * @param memberId
    * @param itemId
    * @param count
@@ -52,12 +54,13 @@ export class OrderService {
 
     // 주문상품 생성
     const orderItem = OrderItem.createOrderItem(item, item.price, count);
+    const createdOrderItem = await this.orderItemRepository.save(orderItem);
+
     // 주문 생성
     const order = Order.createOrder(member, delivery, orderItem);
 
     // 주문 저장
-    const result = await this.orderItemRepository.save(orderItem);
-
+    const result = await this.orderRepository.save(order);
     return order.id;
   }
 

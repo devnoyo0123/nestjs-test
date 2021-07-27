@@ -26,16 +26,16 @@ export class Order {
   id: number;
 
   // https://github.com/typeorm/typeorm/blob/master/docs/relations.md#cascades
-  @ManyToOne(() => Member, (member) => member.orders, {
-    cascade: ['insert', 'update'],
-  })
+  @ManyToOne(() => Member, (member) => member.orders)
   @JoinColumn()
   member: Member; // 주문 회원
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {})
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItems: OrderItem[];
 
-  @OneToOne(() => Delivery, (delivery) => delivery.order)
+  @OneToOne(() => Delivery, (delivery) => delivery.order, {
+    cascade: ['insert'],
+  })
   @JoinColumn()
   delivery: Delivery;
 

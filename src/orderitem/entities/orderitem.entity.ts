@@ -16,11 +16,11 @@ export class OrderItem {
   // https://github.com/typeorm/typeorm/blob/master/docs/many-to-one-one-to-many-relations.md
   // you can omit @JoinColumn
   @ManyToOne(() => Item, (item) => item.orderItem)
+  @JoinColumn()
   item: Item;
 
-  @ManyToOne(() => Order, (order) => order.orderItems, {
-    cascade: ['insert', 'update'],
-  })
+  @ManyToOne(() => Order, (order) => order.orderItems)
+  @JoinColumn()
   order: Order;
 
   @Column()

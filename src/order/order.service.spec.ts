@@ -87,5 +87,5 @@ describe('OrderService', () => {
     const order = await orderRepo.findOne(orderId);
 
     expect(order.status).toEqual(ORDERStatus.ORDER);
-  }, 30000);
+  });
 });

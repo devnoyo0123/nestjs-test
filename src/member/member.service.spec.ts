@@ -52,4 +52,33 @@ describe('MemberService', () => {
     expect(memberRepositoryJoinSpy).toBeCalledWith(createMemberDto);
     expect(savedId).toEqual(createdMember.id);
   });
+
+  it('중복_회원_예외', async () => {
+    // given
+
+    const createMemberDto: CreateMemberDto = {
+      name: 'yobs',
+    };
+
+    const createdMember: IMember = {
+      id: 1,
+      name: 'yobs',
+      address: null,
+      orders: null,
+      useYn: false,
+    };
+
+    const memberRepositoryJoinSpy = jest
+      .spyOn(memberRepository, 'join')
+      .mockResolvedValue(createdMember);
+
+    const memberRepositoryfindNameSpy = jest
+      .spyOn(memberRepository, 'findByName')
+      .mockResolvedValue([createdMember]);
+
+    // when  // then
+    await expect(memberService.join(createMemberDto)).rejects.toThrow();
+
+    expect(memberRepositoryfindNameSpy).toBeCalledWith(createdMember.name);
+  });
 });

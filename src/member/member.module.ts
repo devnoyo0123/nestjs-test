@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MemberRepository } from './repository/repository.service';
 
 @Module({
-  controllers: [MemberController],
   imports: [TypeOrmModule.forFeature([MemberRepository])],
+  controllers: [MemberController],
   providers: [MemberService],
 })
 export class MemberModule {}

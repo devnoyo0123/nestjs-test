@@ -1,1 +1,9 @@
-export class CreateItemDto {}
+export class CreateItemDto {
+  id: number;
+
+  name: string;
+
+  price: number;
+
+  stockQuantity: number;
+}

@@ -30,6 +30,7 @@ import { AddressModule } from './address/address.module';
         database: 'mydb',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
+        logging: true,
       }),
     }),
     CatsModule,

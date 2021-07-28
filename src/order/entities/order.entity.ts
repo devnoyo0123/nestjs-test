@@ -1,6 +1,8 @@
 import {
   Column,
   Entity,
+  getConnection,
+  getManager,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -34,7 +36,7 @@ export class Order {
   orderItems: OrderItem[];
 
   @OneToOne(() => Delivery, (delivery) => delivery.order, {
-    cascade: ['insert'],
+    cascade: ['insert', 'update'],
   })
   @JoinColumn()
   delivery: Delivery;
@@ -94,15 +96,19 @@ export class Order {
    * 비즈니스 로직
    */
 
-  cancel() {
-    if (this.delivery.status === DeliveryStatus.COMP) {
+  async cancel() {
+    if (this.delivery?.status === DeliveryStatus.COMP) {
       throw new Error('이미 배송완료된 상품은 취소가 불가능합니다.');
     }
 
     this.status = ORDERStatus.CANCEL;
-    this.orderItems.forEach((orderItem) => {
+    for (const orderItem of this.orderItems) {
       orderItem.cancel();
-    });
+      await getManager().save(orderItem.item);
+    }
+    // this.orderItems.forEach((orderItem) => {
+    //   orderItem.cancel();
+    // });
   }
 
   /**

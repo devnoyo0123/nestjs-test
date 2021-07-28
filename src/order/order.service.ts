@@ -8,7 +8,7 @@ import { Item } from '../item/entities/item.entity';
 import { Delivery } from '../delivery/entities/delivery.entity';
 import { OrderItem } from '../orderitem/entities/orderitem.entity';
 import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 
 @Injectable()
 export class OrderService {
@@ -66,11 +66,16 @@ export class OrderService {
   /**
    * 주문 취소
    */
-
   async cancelOrder(orderId: number) {
     // 주문 엔티티 조회
-    const order: Order = await this.orderRepository.findOne(orderId);
+
+    const order = await getConnection()
+      .createQueryBuilder<Order>(Order, 'order')
+      .innerJoinAndSelect('order.orderItems', 'orderItems')
+      .innerJoinAndSelect('orderItems.item', 'item')
+      .getOne();
     // 주문 취소
-    order.cancel();
+    await order.cancel();
+    const cancelOrder = await this.orderRepository.save(order);
   }
 }

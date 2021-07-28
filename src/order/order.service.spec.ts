@@ -20,7 +20,7 @@ describe('OrderService', () => {
   let itemRepo;
   let orderItemRepo;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot({
@@ -122,5 +122,65 @@ describe('OrderService', () => {
     await expect(
       orderService.order(createdMember.id, createItem.id, orderCount),
     ).rejects.toThrowError('need more stock');
+  });
+
+  describe('주문_취소', () => {
+    it('주문 취소시 상태는 CANCEL 이다.', async () => {
+      // given
+      const member: Member = new Member();
+      member.name = 'yobs';
+      const item: Item = new Item();
+      item.name = '시골 JPA';
+      item.price = 10000;
+      item.stockQuantity = 10;
+
+      const orderCount = 2;
+
+      const createdMember = await memberRepo.save(member);
+      const createItem: Item = await itemRepo.save(item);
+
+      const orderId = await orderService.order(
+        createdMember.id,
+        createItem.id,
+        orderCount,
+      );
+
+      // when
+      await orderService.cancelOrder(orderId);
+
+      // then
+      const getOrder: Order = await orderRepo.findOne(orderId);
+      expect(getOrder.status).toEqual(ORDERStatus.CANCEL);
+    });
+  });
+
+  describe('주문_취소', () => {
+    it('주문이 취소된 상품은 그만큼 재고가 증가해야 한다.', async () => {
+      // given
+      const member: Member = new Member();
+      member.name = 'yobs';
+      const item: Item = new Item();
+      item.name = '시골 JPA';
+      item.price = 10000;
+      item.stockQuantity = 10;
+
+      const orderCount = 2;
+
+      const createdMember = await memberRepo.save(member);
+      const createItem: Item = await itemRepo.save(item);
+
+      const orderId = await orderService.order(
+        createdMember.id,
+        createItem.id,
+        orderCount,
+      );
+
+      // when
+      await orderService.cancelOrder(orderId);
+
+      // then
+      const cancelItem: Item = await itemRepo.findOne(createItem.id);
+      expect(cancelItem.stockQuantity).toEqual(10);
+    }, 30000);
   });
 });

@@ -9,6 +9,7 @@ import { Delivery } from '../delivery/entities/delivery.entity';
 import { OrderItem } from '../orderitem/entities/orderitem.entity';
 import { Order } from './entities/order.entity';
 import { getConnection, Repository } from 'typeorm';
+import { OrderSearchDto } from './dto/ordersearch.dto';
 
 @Injectable()
 export class OrderService {
@@ -77,5 +78,12 @@ export class OrderService {
     // 주문 취소
     await order.cancel();
     const cancelOrder = await this.orderRepository.save(order);
+  }
+
+  /**
+   * 주문 검색
+   */
+  async search(orderSearchDto: OrderSearchDto) {
+    return await this.orderRepository.findAll(orderSearchDto);
   }
 }

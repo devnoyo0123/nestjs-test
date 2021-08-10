@@ -183,4 +183,6 @@ describe('OrderService', () => {
       expect(cancelItem.stockQuantity).toEqual(10);
     }, 30000);
   });
+
+  describe('주문_검색', () => {});
 });

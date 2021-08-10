@@ -62,40 +62,55 @@ describe('OrderService', () => {
     expect(orderService).toBeDefined();
   });
 
-  it('상품_주문', async () => {
+  describe('상품_주문', () => {
     // given
-    const member: Member = new Member();
-    member.name = '회원1';
-    member.address = new Address();
-    member.address.city = '서울';
-    member.address.street = '관악구';
-    member.address.zipcode = '123-123';
-    const createdMember = await memberRepo.save(member);
-    const book: Book = new Book();
-    book.name = '시골 JPA';
-    book.price = 10000;
-    book.stockQuantity = 10;
-    const createItem: Item = await itemRepo.save(book);
-
+    let order = null;
     const orderCount = 2;
-    // when
-    const orderId: number = await orderService.order(
-      createdMember.id,
-      createItem.id,
-      orderCount,
-    );
 
-    const order = await getConnection()
-      .createQueryBuilder<Order>(Order, 'order')
-      .innerJoinAndSelect('order.orderItems', 'orderItems')
-      .innerJoinAndSelect('orderItems.item', 'item')
-      .getOne();
+    beforeAll(async () => {
+      const member: Member = new Member();
+      member.name = '회원1';
+      member.address = new Address();
+      member.address.city = '서울';
+      member.address.street = '관악구';
+      member.address.zipcode = '123-123';
+      const createdMember = await memberRepo.save(member);
+      const book: Book = new Book();
+      book.name = '시골 JPA';
+      book.price = 10000;
+      book.stockQuantity = 10;
+      const createItem: Item = await itemRepo.save(book);
+
+      // when
+      const orderId: number = await orderService.order(
+        createdMember.id,
+        createItem.id,
+        orderCount,
+      );
+
+      order = await getConnection()
+        .createQueryBuilder<Order>(Order, 'order')
+        .innerJoinAndSelect('order.orderItems', 'orderItems')
+        .innerJoinAndSelect('orderItems.item', 'item')
+        .getOne();
+    });
 
     // assert 문에 message가 있었으면 좋겠는데..
-    expect(order.status).toEqual(ORDERStatus.ORDER);
-    expect(order.orderItems.length).toEqual(1);
-    expect(orderCount * 10000).toEqual(order.getTotalPrice());
-    expect(order.orderItems[0].item.stockQuantity).toEqual(8);
+    it('주문 상태가 ORDER 상태이어야 합니다.', async () => {
+      expect(order.status).toEqual(ORDERStatus.ORDER);
+    });
+
+    it('주문 아이템의 길이가 1이어야 합니다.', async () => {
+      expect(order.orderItems.length).toEqual(1);
+    });
+
+    it('주문 수량과 단가를 곱한 값이 전체 가격이 되어야 합니다.', async () => {
+      expect(orderCount * 10000).toEqual(order.getTotalPrice());
+    });
+
+    it('주문한 상품의 재고수량이 8이 되어야 합니다', async () => {
+      expect(order.orderItems[0].item.stockQuantity).toEqual(8);
+    });
   });
 
   it('상품주문_재고수량초과', async () => {
